@@ -248,6 +248,10 @@
                 player.playVideo();
             };
 
+            // Fix for GitHub Pages: Extract inline styles to prevent Jekyll from breaking on {{ and }} tags
+            const maxWatchedStyle = { width: `${(maxTimeWatched / duration) * 100 || 0}%` };
+            const currentTimeStyle = { width: `${(currentTime / duration) * 100 || 0}%` };
+
             return (
                 <div className="w-full flex flex-col items-center gap-6">
                     <div className="text-center space-y-2">
@@ -331,24 +335,27 @@
                                 {/* Max Watched Buffer */}
                                 <div 
                                     className="absolute top-0 left-0 h-full bg-slate-500 rounded-full opacity-50 transition-all duration-200"
-                                    style={{ width: `${(maxTimeWatched / duration) * 100 || 0}%` }}
+                                    style={maxWatchedStyle}
                                 ></div>
                                 
                                 {/* Current Time Progress */}
                                 <div 
                                     className="absolute top-0 left-0 h-full bg-blue-500 rounded-full transition-all duration-200"
-                                    style={{ width: `${(currentTime / duration) * 100 || 0}%` }}
+                                    style={currentTimeStyle}
                                 ></div>
 
                                 {/* Question Markers */}
-                                {duration > 0 && QUIZ_QUESTIONS.map(q => (
-                                    <div 
-                                        key={q.id}
-                                        className={`absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full ${answeredQuestions.has(q.id) ? 'bg-green-400' : 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]'}`}
-                                        style={{ left: `calc(${(q.timestamp / duration) * 100}% - 4px)` }}
-                                        title="Question Marker"
-                                    ></div>
-                                ))}
+                                {duration > 0 && QUIZ_QUESTIONS.map(q => {
+                                    const markerStyle = { left: `calc(${(q.timestamp / duration) * 100}% - 4px)` };
+                                    return (
+                                        <div 
+                                            key={q.id}
+                                            className={`absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full ${answeredQuestions.has(q.id) ? 'bg-green-400' : 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]'}`}
+                                            style={markerStyle}
+                                            title="Question Marker"
+                                        ></div>
+                                    );
+                                })}
                             </div>
 
                             {/* Controls row */}

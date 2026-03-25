@@ -15,7 +15,7 @@
     <!-- Babel for JSX compilation in the browser -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4 selection:bg-blue-500/30">
+<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4 selection:bg-blue-500/30 overflow-hidden">
     <div id="root" class="w-full max-w-5xl"></div>
 
     <script type="text/babel">
@@ -129,10 +129,9 @@
             { id: 100, timestamp: 10580, text: "As you finish the video, what must you do now?", options: ["Leave immediately", "Watch the next episode", "Close the tab without saving", "Ensure your results CSV file downloads and submit it to your teacher"], correctIndex: 3 }
         ];
 
-        // Salt for Local Storage obfuscation to prevent students from manually editing their progress
+        // Salt for Local Storage obfuscation
         const SALT = "aztec_v1_";
 
-        // Safely decode obfuscated local storage data
         const decodeData = (key, fallback) => {
             try {
                 const saved = localStorage.getItem(key);
@@ -145,7 +144,6 @@
         const getSavedCurrent = () => decodeData('aztec_video_curr_time_hash', 0);
         const getSavedViolations = () => decodeData('aztec_video_violations_hash', 0);
         
-        // Load answered questions safely
         const getSavedAnswers = () => {
             try {
                 const saved = localStorage.getItem('aztec_video_answers_hash');
@@ -154,7 +152,6 @@
             return new Set();
         };
 
-        // Default teacher PIN
         const TEACHER_PIN = "1234";
 
         const App = () => {
@@ -172,6 +169,7 @@
             
             // Tab violation tracking
             const [violations, setViolations] = useState(getSavedViolations);
+            const [showExitWarning, setShowExitWarning] = useState(false);
             const playbackRateRef = useRef(1);
 
             // Question Tracking Logic
@@ -196,17 +194,40 @@
             const playerContainerRef = useRef(null);
             const intervalRef = useRef(null);
 
-            // Tab visibility detection (Anti-Cheat)
+            // Browser 'Confirm Exit' Dialog (beforeunload)
             useEffect(() => {
+                const handleBeforeUnload = (e) => {
+                    if (view === 'video' && !isTeacherModeRef.current) {
+                        e.preventDefault();
+                        e.returnValue = ''; // Trigger the browser's default warning dialog
+                    }
+                };
+                window.addEventListener("beforeunload", handleBeforeUnload);
+                return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+            }, [view]);
+
+            // Mouse Leave (Exit Intent) and Tab Visibility Detection
+            useEffect(() => {
+                // 1. Mouse Leave Intent Detection
+                const handleMouseLeave = (e) => {
+                    // Trigger if the mouse leaves from the top of the window (going towards tabs/URL bar)
+                    if (e.clientY <= 10 && view === 'video' && !isTeacherModeRef.current) {
+                        setShowExitWarning(true);
+                    }
+                };
+
+                const handleMouseEnter = () => {
+                    setShowExitWarning(false);
+                };
+
+                // 2. Actual Tab Changed (Silent Penalty applied)
                 const handleVisibilityChange = () => {
-                    // Disable tab penalty if in Teacher Mode
                     if (document.hidden && view === 'video' && !isTeacherModeRef.current) {
                         if (player && typeof player.pauseVideo === 'function') {
                             player.pauseVideo();
                             
                             // Apply 20 second penalty silently
                             const penaltyTime = 20;
-                            // Ensure penalty doesn't push them into negative time
                             const newTime = Math.max(0, player.getCurrentTime() - penaltyTime);
                             const newMax = Math.max(0, maxTimeWatchedRef.current - penaltyTime);
                             
@@ -223,14 +244,19 @@
                         
                         setViolations(prev => {
                             const newCount = prev + 1;
-                            localStorage.setItem('aztec_video_violations_hash', btoa(SALT + newCount.toString())); // Save encrypted penalty
+                            localStorage.setItem('aztec_video_violations_hash', btoa(SALT + newCount.toString()));
                             return newCount;
                         });
                     }
                 };
 
+                document.addEventListener("mouseleave", handleMouseLeave);
+                document.addEventListener("mouseenter", handleMouseEnter);
                 document.addEventListener("visibilitychange", handleVisibilityChange);
+                
                 return () => {
+                    document.removeEventListener("mouseleave", handleMouseLeave);
+                    document.removeEventListener("mouseenter", handleMouseEnter);
                     document.removeEventListener("visibilitychange", handleVisibilityChange);
                 };
             }, [view, player]);
@@ -268,7 +294,7 @@
                         iv_load_policy: 3, 
                         start: startTime,  
                         cc_load_policy: 1,
-                        playsinline: 1     // CRITICAL: Prevents Apple/iOS native fast-forward scrub bars from opening
+                        playsinline: 1     
                     },
                     events: {
                         onReady: (event) => {
@@ -293,41 +319,35 @@
                 });
             };
 
-            // Main Video Loop (Strict Anti-Cheat Enforcer)
+            // Main Video Loop
             useEffect(() => {
                 if (isPlaying && player && view === 'video') {
                     intervalRef.current = setInterval(() => {
                         const time = player.getCurrentTime();
                         
-                        // Check if they hit the 2h 56m 34s limit
                         if (time >= MAX_ALLOWED_TIME) {
                             player.pauseVideo();
                             setView('finished');
                             return;
                         }
 
-                        // Enforce playback speed continuously to block Chrome speed-controller extensions
                         if (!isTeacherModeRef.current && player.getPlaybackRate() !== playbackRateRef.current) {
                             player.setPlaybackRate(playbackRateRef.current);
                         }
 
-                        // Prevent anti-cheat loop fighting asynchronous YouTube backward seeks
                         if (Date.now() - lastSeekTimeRef.current < 1500) {
                             setCurrentTime(time);
                             return;
                         }
                         
                         let currentMax = maxTimeWatchedRef.current;
-                        const JUMP_TOLERANCE = 3; // Allow up to 3 seconds for natural 1.25x speed and buffering hiccups
+                        const JUMP_TOLERANCE = 3; 
 
-                        // STRICT ANTI-FAST-FORWARD
-                        // If they skip ahead more than the natural progression rate, snap them backward instantly
                         if (!isTeacherModeRef.current && time > currentMax + JUMP_TOLERANCE) { 
                             player.seekTo(currentMax, true);
                             lastSeekTimeRef.current = Date.now();
                             return;
                         } else {
-                            // Only save progress if the video advanced naturally (refuses to save extension-assisted skips)
                             if (time > currentMax && (time - currentMax) <= JUMP_TOLERANCE) {
                                 const newMax = time;
                                 maxTimeWatchedRef.current = newMax;
@@ -341,11 +361,10 @@
                             localStorage.setItem('aztec_video_curr_time_hash', btoa(SALT + time.toString())); 
                         }
 
-                        // === Check for Questions ===
                         if (!activeQuestionRef.current) {
                             const upcoming = QUIZ_QUESTIONS.find(q => 
                                 time >= q.timestamp && 
-                                time < q.timestamp + 1 && // 1 second trigger window
+                                time < q.timestamp + 1 && 
                                 !answeredQuestionsRef.current.has(q.id)
                             );
                             
@@ -408,12 +427,10 @@
                 let targetTime = clickRatio * MAX_ALLOWED_TIME;
 
                 if (!isTeacherModeRef.current) {
-                    // Strict Timeline Block: Clamp click attempts exactly to max watched time
                     if (targetTime > maxTimeWatchedRef.current) {
                         targetTime = maxTimeWatchedRef.current; 
                     }
                 } else {
-                    // Teacher Mode: Update the official max watched time allowing questions to trigger correctly
                     if (targetTime > maxTimeWatchedRef.current) {
                         maxTimeWatchedRef.current = targetTime;
                         setMaxTimeWatched(targetTime);
@@ -426,7 +443,6 @@
                 setCurrentTime(targetTime);
             };
 
-            // Quiz UI Handlers
             const handleOptionClick = (index) => {
                 if (showFeedback) return; 
                 setSelectedOption(index);
@@ -436,14 +452,10 @@
             const handleContinueVideo = () => {
                 const newAnswers = new Set(answeredQuestions).add(activeQuestion.id);
                 setAnsweredQuestions(newAnswers);
-                
-                // Save encrypted answered questions to localStorage 
                 localStorage.setItem('aztec_video_answers_hash', btoa(SALT + JSON.stringify(Array.from(newAnswers))));
-                
                 setActiveQuestion(null);
                 setSelectedOption(null);
                 setShowFeedback(false);
-                
                 lastSeekTimeRef.current = Date.now(); 
                 player.playVideo();
             };
@@ -479,7 +491,6 @@
                 document.body.removeChild(link);
             };
 
-            // Automatically download CSV when finished
             useEffect(() => {
                 if (view === 'finished') {
                     downloadCSV();
@@ -508,7 +519,6 @@
             if (view === 'instructions') {
                 return (
                     <div className="max-w-4xl w-full bg-slate-800 p-10 rounded-2xl shadow-2xl border border-slate-700 relative">
-                        {/* Discreet Teacher Login Button */}
                         {!isTeacherMode ? (
                             <button 
                                 onClick={() => setShowPinModal(true)}
@@ -559,7 +569,6 @@
                             </button>
                         </div>
 
-                        {/* PIN Entry Modal */}
                         {showPinModal && (
                             <div className="absolute inset-0 bg-slate-900/95 backdrop-blur-sm z-50 flex items-center justify-center rounded-2xl">
                                 <div className="bg-slate-800 p-8 rounded-xl border border-slate-600 shadow-2xl w-96 max-w-full relative">
@@ -638,16 +647,33 @@
                                 </button>
                             </div>
                         ) : (
-                            <p className="text-red-400 font-bold animate-pulse">Do NOT open other tabs or windows.</p>
+                            <p className="text-red-400 font-bold animate-pulse text-lg tracking-wide bg-red-900/40 px-4 py-1 rounded-full border border-red-500/50">
+                                ⚠️ WARNING: Exiting or switching tabs will result in a 20-second penalty!
+                            </p>
                         )}
                     </div>
 
                     <div className="w-full flex flex-col rounded-xl shadow-2xl overflow-hidden border border-slate-700 relative">
                         <div className="relative w-full aspect-video bg-black">
                             <div ref={playerContainerRef} className="absolute inset-0 w-full h-full"></div>
-                            
-                            {/* INVISIBLE GLASS SHIELD: Absolutely blocks ALL mouse/touch clicks from reaching the native YouTube iframe beneath it */}
                             <div className="absolute inset-0 z-10 bg-transparent"></div>
+                            
+                            {/* Exit Intent Warning Overlay */}
+                            {showExitWarning && !isTeacherMode && view === 'video' && (
+                                <div className="absolute inset-0 z-[100] bg-red-700/95 backdrop-blur-sm flex flex-col items-center justify-center p-8 text-center border-8 border-red-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white mb-6 animate-bounce"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                                    <h1 className="text-5xl font-black text-white mb-4 uppercase tracking-widest">WARNING!</h1>
+                                    <p className="text-3xl text-white font-bold leading-tight">
+                                        Do not exit or switch tabs!
+                                    </p>
+                                    <p className="text-2xl text-red-200 font-bold mt-6 bg-red-950/70 p-4 rounded-xl border border-red-400">
+                                        A 20-SECOND PENALTY will be instantly applied to your progress.
+                                    </p>
+                                    <p className="text-lg text-white mt-10 animate-pulse font-medium bg-black/40 px-6 py-2 rounded-full border border-white/20">
+                                        (Move your mouse back into the window to resume the video)
+                                    </p>
+                                </div>
+                            )}
                         </div>
 
                         {/* Interactive Question Modal Overlay */}
@@ -733,7 +759,6 @@
 
                                 {/* Question Markers on Timeline */}
                                 {MAX_ALLOWED_TIME > 0 && QUIZ_QUESTIONS.map(q => {
-                                    // Make the markers tiny since there are 100 of them
                                     const markerStyle = { left: `calc(${(q.timestamp / MAX_ALLOWED_TIME) * 100}% - 2px)` };
                                     return (
                                         <div 
@@ -751,7 +776,7 @@
                                 <button 
                                     onClick={togglePlayPause}
                                     className="text-white hover:text-blue-400 transition-colors focus:outline-none z-20"
-                                    disabled={!!activeQuestion}
+                                    disabled={!!activeQuestion || showExitWarning}
                                     title={isPlaying ? "Pause" : "Play"}
                                 >
                                     {isPlaying ? (
@@ -764,7 +789,7 @@
                                 <button 
                                     onClick={handleRewind}
                                     className="text-white hover:text-blue-400 transition-colors focus:outline-none flex items-center gap-1 z-20"
-                                    disabled={!!activeQuestion}
+                                    disabled={!!activeQuestion || showExitWarning}
                                     title="Rewind 10 Seconds"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
@@ -804,7 +829,7 @@
                                     
                                     <button 
                                         onClick={toggleSpeed}
-                                        disabled={!!activeQuestion}
+                                        disabled={!!activeQuestion || showExitWarning}
                                         className={`z-20 px-4 py-1.5 rounded-lg border-2 font-bold transition-all focus:outline-none disabled:opacity-50 ${playbackRate === 1.25 ? 'bg-amber-500/20 border-amber-400 text-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.3)]' : 'border-slate-500 text-white hover:border-white shadow-[0_0_10px_rgba(255,255,255,0.2)]'}`}
                                         title="Toggle Speed"
                                     >

@@ -25,28 +25,28 @@
         const MAX_ALLOWED_TIME = 2850; 
         const VIDEO_ID = 'yCKgf6liXvQ';
 
-        // 20 Questions strictly synchronized to the Borges transcript 
+        // 20 Questions strictly synchronized to the Borges transcript + 1 second delay
         const QUIZ_QUESTIONS = [
-            { id: 1, timestamp: 38, text: "At what age was Jorge Luis Borges already destined to be a writer?", options: ["Nine", "Fifteen", "Twenty-one", "Thirty"], correctIndex: 0 },
-            { id: 2, timestamp: 80, text: "When did international fame finally reach Borges?", options: ["In his twenties", "In his sixties when he was already blind", "After his death", "During World War I"], correctIndex: 1 },
-            { id: 3, timestamp: 135, text: "Which major literary award always escaped Borges despite winning 46 others?", options: ["The Pulitzer Prize", "The Cervantes Prize", "The Nobel Prize for Literature", "The Formentor Prize"], correctIndex: 2 },
-            { id: 4, timestamp: 176, text: "In what city was Jorge Luis Borges born?", options: ["Madrid", "Geneva", "Buenos Aires", "Lima"], correctIndex: 2 },
-            { id: 5, timestamp: 203, text: "Where did Borges discover his endless love and pleasure for books?", options: ["In his school's library", "In his father's library", "At the National Library", "In a local bookstore"], correctIndex: 1 },
-            { id: 6, timestamp: 248, text: "What was the profession of Borges' father?", options: ["A lawyer who dreamed of being a writer", "A professional poet", "A politician", "A famous architect"], correctIndex: 0 },
-            { id: 7, timestamp: 352, text: "What did the young Borges fear more than anything else in his house?", options: ["The dark basement", "Spiders", "Mirrors and reflections", "Loud noises"], correctIndex: 2 },
-            { id: 8, timestamp: 410, text: "Which animal at the zoo fascinated Borges and symbolized an adventurous life?", options: ["The Lion", "The Elephant", "The Tiger", "The Bear"], correctIndex: 2 },
-            { id: 9, timestamp: 554, text: "Why did the Borges family move to Geneva, Switzerland?", options: ["To escape a war in Argentina", "To consult a specialist for his father's failing eyesight", "To find a publisher for Borges' book", "To start a new business"], correctIndex: 1 },
-            { id: 10, timestamp: 578, text: "What major global event kept the Borges family in Europe longer than expected?", options: ["The Spanish Civil War", "World War I", "World War II", "The Great Depression"], correctIndex: 1 },
-            { id: 11, timestamp: 666, text: "What was the title of Borges' first book of poems, inspired by his return to his hometown?", options: ["Ficciones", "The Aleph", "Fervor de Buenos Aires", "Labyrinths"], correctIndex: 2 },
-            { id: 12, timestamp: 967, text: "According to Borges, how does a real peasant or gaucho view the landscape?", options: ["For its aesthetic beauty", "As a place of spiritual reflection", "For its practicalities, like checking the weather", "As something to be conquered"], correctIndex: 2 },
-            { id: 13, timestamp: 1170, text: "What literary movement did Borges embrace in Spain that believed the metaphor was the essence of poetry?", options: ["Surrealism", "Ultraism", "Romanticism", "Realism"], correctIndex: 1 },
-            { id: 14, timestamp: 1191, text: "Who was the young writer Borges famously collaborated with under the pseudonym Bustos Domecq?", options: ["Gabriel García Márquez", "Julio Cortázar", "Adolfo Bioy Casares", "Victoria Ocampo"], correctIndex: 2 },
-            { id: 15, timestamp: 1499, text: "Where did Borges work to financially support his family after his father's death?", options: ["At a university as a professor", "At a small municipal library", "At a local newspaper", "At a law firm"], correctIndex: 1 },
-            { id: 16, timestamp: 1535, text: "What near-fatal accident did Borges suffer in 1938?", options: ["He was in a train crash", "He hit his head on an open, freshly painted window", "He fell off a horse", "He was caught in a street fight"], correctIndex: 1 },
-            { id: 17, timestamp: 1603, text: "What famous short story did Borges write to test if he had lost his mental abilities after his head injury?", options: ["The South", "The Library of Babel", "Pierre Menard, Author of Don Quixote", "The Circular Ruins"], correctIndex: 2 },
-            { id: 18, timestamp: 2127, text: "What prestigious position was Borges appointed to in 1955 after the fall of Perón?", options: ["Minister of Culture", "Director of the National Library", "President of the University", "Ambassador to Spain"], correctIndex: 1 },
-            { id: 19, timestamp: 2144, text: "What ironic fate did Borges share with two previous directors of the National Library?", options: ["They were all exiled", "They all went blind", "They all wrote the same book", "They were all from Geneva"], correctIndex: 1 },
-            { id: 20, timestamp: 2653, text: "In which city did Borges choose to spend his final days and die?", options: ["Buenos Aires", "Madrid", "Paris", "Geneva"], correctIndex: 3 }
+            { id: 1, timestamp: 48, text: "At what age was Jorge Luis Borges already destined to be a writer?", options: ["Nine", "Fifteen", "Twenty-one", "Thirty"], correctIndex: 0 },
+            { id: 2, timestamp: 83, text: "When did international fame finally reach Borges?", options: ["In his twenties", "In his sixties when he was already blind", "After his death", "During World War I"], correctIndex: 1 },
+            { id: 3, timestamp: 143, text: "Which major literary award always escaped Borges despite winning 46 others?", options: ["The Pulitzer Prize", "The Cervantes Prize", "The Nobel Prize for Literature", "The Formentor Prize"], correctIndex: 2 },
+            { id: 4, timestamp: 184, text: "In what city was Jorge Luis Borges born?", options: ["Madrid", "Geneva", "Buenos Aires", "Lima"], correctIndex: 2 },
+            { id: 5, timestamp: 207, text: "Where did Borges discover his endless love and pleasure for books?", options: ["In his school's library", "In his father's library", "At the National Library", "In a local bookstore"], correctIndex: 1 },
+            { id: 6, timestamp: 244, text: "What was the profession of Borges' father?", options: ["A lawyer who dreamed of being a writer", "A professional poet", "A politician", "A famous architect"], correctIndex: 0 },
+            { id: 7, timestamp: 356, text: "What did the young Borges fear more than anything else in his house?", options: ["The dark basement", "Spiders", "Mirrors and reflections", "Loud noises"], correctIndex: 2 },
+            { id: 8, timestamp: 420, text: "Which animal at the zoo fascinated Borges and symbolized an adventurous life?", options: ["The Lion", "The Elephant", "The Tiger", "The Bear"], correctIndex: 2 },
+            { id: 9, timestamp: 563, text: "Why did the Borges family move to Geneva, Switzerland?", options: ["To escape a war in Argentina", "To consult a specialist for his father's failing eyesight", "To find a publisher for Borges' book", "To start a new business"], correctIndex: 1 },
+            { id: 10, timestamp: 585, text: "What major global event kept the Borges family in Europe longer than expected?", options: ["The Spanish Civil War", "World War I", "World War II", "The Great Depression"], correctIndex: 1 },
+            { id: 11, timestamp: 659, text: "What was the title of Borges' first book of poems, inspired by his return to his hometown?", options: ["Ficciones", "The Aleph", "Fervor de Buenos Aires", "Labyrinths"], correctIndex: 2 },
+            { id: 12, timestamp: 976, text: "According to Borges, how does a real peasant or gaucho view the landscape?", options: ["For its aesthetic beauty", "As a place of spiritual reflection", "For its practicalities, like checking the weather", "As something to be conquered"], correctIndex: 2 },
+            { id: 13, timestamp: 1172, text: "What literary movement did Borges embrace in Spain that believed the metaphor was the essence of poetry?", options: ["Surrealism", "Ultraism", "Romanticism", "Realism"], correctIndex: 1 },
+            { id: 14, timestamp: 1200, text: "Who was the young writer Borges famously collaborated with under the pseudonym Bustos Domecq?", options: ["Gabriel García Márquez", "Julio Cortázar", "Adolfo Bioy Casares", "Victoria Ocampo"], correctIndex: 2 },
+            { id: 15, timestamp: 1501, text: "Where did Borges work to financially support his family after his father's death?", options: ["At a university as a professor", "At a small municipal library", "At a local newspaper", "At a law firm"], correctIndex: 1 },
+            { id: 16, timestamp: 1559, text: "What near-fatal accident did Borges suffer in 1938?", options: ["He was in a train crash", "He hit his head on an open, freshly painted window", "He fell off a horse", "He was caught in a street fight"], correctIndex: 1 },
+            { id: 17, timestamp: 1626, text: "What famous short story did Borges write to test if he had lost his mental abilities after his head injury?", options: ["The South", "The Library of Babel", "Pierre Menard, Author of Don Quixote", "The Circular Ruins"], correctIndex: 2 },
+            { id: 18, timestamp: 2134, text: "What prestigious position was Borges appointed to in 1955 after the fall of Perón?", options: ["Minister of Culture", "Director of the National Library", "President of the University", "Ambassador to Spain"], correctIndex: 1 },
+            { id: 19, timestamp: 2155, text: "What ironic fate did Borges share with two previous directors of the National Library?", options: ["They were all exiled", "They all went blind", "They all wrote the same book", "They were all from Geneva"], correctIndex: 1 },
+            { id: 20, timestamp: 2655, text: "In which city did Borges choose to spend his final days and die?", options: ["Buenos Aires", "Madrid", "Paris", "Geneva"], correctIndex: 3 }
         ];
 
         // Salt for Local Storage obfuscation
@@ -89,7 +89,6 @@
             
             const [maxTimeWatched, setMaxTimeWatched] = useState(() => getSavedNum('borges_video_max_time_hash'));
             const maxTimeWatchedRef = useRef(getSavedNum('borges_video_max_time_hash'));
-            const lastSeekTimeRef = useRef(0);
             
             const [studentName, setStudentName] = useState(() => getSavedStr('borges_video_student_name'));
             const studentNameRef = useRef(studentName);
@@ -102,7 +101,7 @@
             // Question Tracking Logic
             const [activeQuestion, setActiveQuestion] = useState(null);
             const activeQuestionRef = useRef(null);
-            const lastTriggeredQuestionIdRef = useRef(null); // Prevents rapid re-triggering, resets when leaving window
+            const lastTriggeredQuestionIdRef = useRef(null); 
 
             // Student Answers Object: { 1: true, 2: false }
             const [studentAnswers, setStudentAnswers] = useState(getSavedAnswers());
@@ -111,7 +110,6 @@
             const [selectedOption, setSelectedOption] = useState(null);
             const [showFeedback, setShowFeedback] = useState(false);
             
-            // Refs for hot paths (event listeners)
             const selectedOptionRef = useRef(null);
             const showFeedbackRef = useRef(false);
 
@@ -130,6 +128,7 @@
                 const handleKeyDown = (e) => {
                     if (activeQuestionRef.current && e.key === 'Enter') {
                         e.preventDefault(); 
+                        e.stopPropagation(); // Prevents race condition if clicking and pressing enter simultaneously
                         if (showFeedbackRef.current) {
                             handleContinueVideo();
                         } else {
@@ -137,9 +136,9 @@
                         }
                     }
                 };
-                window.addEventListener('keydown', handleKeyDown);
-                return () => window.removeEventListener('keydown', handleKeyDown);
-            }, [player]);
+                window.addEventListener('keydown', handleKeyDown, true);
+                return () => window.removeEventListener('keydown', handleKeyDown, true);
+            }, []);
 
             // Browser 'Confirm Exit' Dialog
             useEffect(() => {
@@ -170,13 +169,11 @@
                         if (player && typeof player.pauseVideo === 'function') {
                             player.pauseVideo();
                             
-                            // Apply 20 second penalty silently
                             const penaltyTime = 20;
                             const newTime = Math.max(0, player.getCurrentTime() - penaltyTime);
                             
                             localStorage.setItem('borges_video_curr_time_hash', btoa(SALT + newTime.toString()));
                             
-                            lastSeekTimeRef.current = Date.now();
                             player.seekTo(newTime, true);
                             setCurrentTime(newTime);
                         }
@@ -242,7 +239,6 @@
                             
                             if (startTime > 0) {
                                 event.target.seekTo(startTime, true);
-                                lastSeekTimeRef.current = Date.now();
                             }
                         },
                         onStateChange: (event) => {
@@ -261,11 +257,6 @@
                         if (time >= MAX_ALLOWED_TIME) {
                             player.pauseVideo();
                             setView('finished');
-                            return;
-                        }
-
-                        if (Date.now() - lastSeekTimeRef.current < 1500) {
-                            setCurrentTime(time);
                             return;
                         }
                         
@@ -289,13 +280,11 @@
                             );
                             
                             if (upcoming && lastTriggeredQuestionIdRef.current !== upcoming.id) {
-                                // If found, and we haven't JUST triggered it, pop it up!
                                 player.pauseVideo();
                                 setActiveQuestion(upcoming);
                                 activeQuestionRef.current = upcoming;
                                 lastTriggeredQuestionIdRef.current = upcoming.id;
                             } else if (!upcoming) {
-                                // Once we are out of any 1-second window, clear the lock so it can be re-triggered if rewound
                                 lastTriggeredQuestionIdRef.current = null;
                             }
                         }
@@ -341,7 +330,6 @@
             const handleRewind = () => {
                 if (!player) return;
                 const newTime = Math.max(0, player.getCurrentTime() - 10);
-                lastSeekTimeRef.current = Date.now(); 
                 player.seekTo(newTime, true);
                 setCurrentTime(newTime);
             };
@@ -352,14 +340,13 @@
                 const clickRatio = (e.clientX - rect.left) / rect.width;
                 let targetTime = clickRatio * MAX_ALLOWED_TIME;
 
-                // Completely open timeline clicking
+                // Completely open timeline clicking (Fast Forward Allowed)
                 if (targetTime > maxTimeWatchedRef.current) {
                     maxTimeWatchedRef.current = targetTime;
                     setMaxTimeWatched(targetTime);
                     localStorage.setItem('borges_video_max_time_hash', btoa(SALT + targetTime.toString()));
                 }
-                
-                lastSeekTimeRef.current = Date.now(); 
+                 
                 player.seekTo(targetTime, true);
                 setCurrentTime(targetTime);
             };
@@ -373,14 +360,14 @@
             };
 
             const handleSkip = () => {
-                // Safeguard against React asynchronous crash
                 const questionId = activeQuestionRef.current?.id;
                 if (!questionId) return;
 
-                // Skips register as an incorrect/false answer
                 setStudentAnswers(prev => {
                     const next = { ...prev, [questionId]: false };
-                    localStorage.setItem('borges_video_answers_hash', btoa(SALT + JSON.stringify(next)));
+                    try {
+                        localStorage.setItem('borges_video_answers_hash', btoa(SALT + JSON.stringify(next)));
+                    } catch(err) {}
                     return next;
                 });
                 
@@ -388,7 +375,6 @@
             };
 
             const handleContinueVideo = () => {
-                // Safeguard against React asynchronous crash
                 const currentQ = activeQuestionRef.current;
                 if (!currentQ) return;
 
@@ -399,7 +385,9 @@
                 setStudentAnswers(prev => {
                     const isCorrect = selectedOpt === correctIndex;
                     const next = { ...prev, [questionId]: isCorrect };
-                    localStorage.setItem('borges_video_answers_hash', btoa(SALT + JSON.stringify(next)));
+                    try {
+                        localStorage.setItem('borges_video_answers_hash', btoa(SALT + JSON.stringify(next)));
+                    } catch(err) {}
                     return next;
                 });
                 
@@ -414,8 +402,9 @@
                 setShowFeedback(false);
                 showFeedbackRef.current = false;
                 
-                lastSeekTimeRef.current = Date.now(); 
-                player.playVideo();
+                if (player && typeof player.playVideo === 'function') {
+                    player.playVideo();
+                }
             };
 
             const handleNameChange = (e) => {

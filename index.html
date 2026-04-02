@@ -265,7 +265,7 @@
                                 if (document.exitFullscreen) document.exitFullscreen();
                                 else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
                             }
-                            downloadCSV(); 
+                            downloadCSV(); // Force download if they hit the absolute end of the video
                             setView('finished');
                             return;
                         }
@@ -282,8 +282,9 @@
                             let currentMax = maxTimeWatchedRef.current;
                             const JUMP_TOLERANCE = 8; // Tolerance so natural buffering/lag doesn't block progress
 
-                            if (!isTeacherModeRef.current && time > currentMax + JUMP_TOLERANCE) { 
-                                player.seekTo(currentMax, true);
+                            // Strict Anti-Fast-Forward: Blocks jumping forward past their current exact position
+                            if (!isTeacherModeRef.current && time > prev + JUMP_TOLERANCE) { 
+                                player.seekTo(prev, true);
                                 lastSeekTimeRef.current = Date.now();
                                 return; // Exit tick to snap back
                             } else {
@@ -392,11 +393,12 @@
                 const rect = e.currentTarget.getBoundingClientRect();
                 const clickRatio = (e.clientX - rect.left) / rect.width;
                 let targetTime = clickRatio * MAX_ALLOWED_TIME;
+                const currentVidTime = player.getCurrentTime();
 
-                // Blocks fast forwarding but cleanly glides when rewinding via click
+                // Strictly Only Rewind: Blocks clicking forward from current position
                 if (!isTeacherModeRef.current) {
-                    if (targetTime > maxTimeWatchedRef.current) {
-                        targetTime = maxTimeWatchedRef.current; 
+                    if (targetTime > currentVidTime) {
+                        targetTime = currentVidTime; 
                     }
                 } else {
                     if (targetTime > maxTimeWatchedRef.current) {
@@ -406,11 +408,40 @@
                     }
                 }
                  
-                lastSeekTimeRef.current = Date.now(); 
-                player.seekTo(targetTime, true);
-                setCurrentTime(targetTime);
-                prevTimeRef.current = targetTime;
-                lastTriggeredQuestionIdRef.current = null; // Reset question popups based on new timeline position
+                if (targetTime < currentVidTime || isTeacherModeRef.current) {
+                    lastSeekTimeRef.current = Date.now(); 
+                    player.seekTo(targetTime, true);
+                    setCurrentTime(targetTime);
+                    prevTimeRef.current = targetTime;
+                    lastTriggeredQuestionIdRef.current = null; // Reset question popups based on new timeline position
+                }
+            };
+
+            const handleTimelineSlider = (e) => {
+                if (!player) return;
+                let targetTime = parseFloat(e.target.value);
+                const currentVidTime = player.getCurrentTime();
+
+                // Strictly Only Rewind: Blocks dragging forward from current position
+                if (!isTeacherModeRef.current) {
+                    if (targetTime > currentVidTime) {
+                        targetTime = currentVidTime; 
+                    }
+                } else {
+                    if (targetTime > maxTimeWatchedRef.current) {
+                        maxTimeWatchedRef.current = targetTime;
+                        setMaxTimeWatched(targetTime);
+                        localStorage.setItem('borges_video_max_time_hash', encodeBase64(SALT + targetTime.toString()));
+                    }
+                }
+                 
+                if (targetTime < currentVidTime || isTeacherModeRef.current) {
+                    lastSeekTimeRef.current = Date.now(); 
+                    player.seekTo(targetTime, true);
+                    setCurrentTime(targetTime);
+                    prevTimeRef.current = targetTime;
+                    lastTriggeredQuestionIdRef.current = null;
+                }
             };
 
             const handleOptionClick = (index) => {

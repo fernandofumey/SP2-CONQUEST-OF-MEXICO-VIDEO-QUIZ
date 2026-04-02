@@ -5,11 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jorge Luis Borges - The Mirror Man</title>
     
+    <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- React and ReactDOM -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     
+    <!-- Babel for JSX compilation in the browser -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4 selection:bg-blue-500/30 overflow-hidden">
@@ -18,8 +21,8 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // 47 minutes, 30 seconds in seconds
-        const MAX_ALLOWED_TIME = 2850; 
+        // 45 minutes, 38 seconds in seconds (Adjusted to end exactly after the new pop-up)
+        const MAX_ALLOWED_TIME = 2738; 
         const VIDEO_ID = 'yCKgf6liXvQ';
 
         // 20 Questions strictly synchronized to the Borges transcript + 3 seconds total delay
@@ -28,22 +31,24 @@
             { id: 2, timestamp: 85, text: "When did international fame finally reach Borges?", options: ["In his twenties", "In his sixties when he was already blind", "After his death", "During World War I"], correctIndex: 1 },
             { id: 3, timestamp: 145, text: "Which major literary award always escaped Borges despite winning 46 others?", options: ["The Pulitzer Prize", "The Cervantes Prize", "The Nobel Prize for Literature", "The Formentor Prize"], correctIndex: 2 },
             { id: 4, timestamp: 186, text: "In what city was Jorge Luis Borges born?", options: ["Madrid", "Geneva", "Buenos Aires", "Lima"], correctIndex: 2 },
-            { id: 5, timestamp: 209, text: "Where did Borges discover his endless love and pleasure for books?", options: ["In his school's library", "In his father's library", "At the National Library", "In a local bookstore"], correctIndex: 1 },
-            { id: 6, timestamp: 246, text: "What was the profession of Borges' father?", options: ["A lawyer who dreamed of being a writer", "A professional poet", "A politician", "A famous architect"], correctIndex: 0 },
-            { id: 7, timestamp: 358, text: "What did the young Borges fear more than anything else in his house?", options: ["The dark basement", "Spiders", "Mirrors and reflections", "Loud noises"], correctIndex: 2 },
-            { id: 8, timestamp: 422, text: "Which animal at the zoo fascinated Borges and symbolized an adventurous life?", options: ["The Lion", "The Elephant", "The Tiger", "The Bear"], correctIndex: 2 },
+            { id: 5, timestamp: 210, text: "Where did Borges discover his endless love and pleasure for books?", options: ["In his school's library", "In his father's library", "At the National Library", "In a local bookstore"], correctIndex: 1 },
+            { id: 6, timestamp: 252, text: "What was the profession of Borges' father?", options: ["A lawyer who dreamed of being a writer", "A professional poet", "A politician", "A famous architect"], correctIndex: 0 },
+            { id: 7, timestamp: 362, text: "What did the young Borges fear more than anything else in his house?", options: ["The dark basement", "Spiders", "Mirrors and reflections", "Loud noises"], correctIndex: 2 },
+            { id: 8, timestamp: 423, text: "Which animal at the zoo fascinated Borges and symbolized an adventurous life?", options: ["The Lion", "The Elephant", "The Tiger", "The Bear"], correctIndex: 2 },
             { id: 9, timestamp: 565, text: "Why did the Borges family move to Geneva, Switzerland?", options: ["To escape a war in Argentina", "To consult a specialist for his father's failing eyesight", "To find a publisher for Borges' book", "To start a new business"], correctIndex: 1 },
             { id: 10, timestamp: 587, text: "What major global event kept the Borges family in Europe longer than expected?", options: ["The Spanish Civil War", "World War I", "World War II", "The Great Depression"], correctIndex: 1 },
-            { id: 11, timestamp: 661, text: "What was the title of Borges' first book of poems, inspired by his return to his hometown?", options: ["Ficciones", "The Aleph", "Fervor de Buenos Aires", "Labyrinths"], correctIndex: 2 },
-            { id: 12, timestamp: 978, text: "According to Borges, how does a real peasant or gaucho view the landscape?", options: ["For its aesthetic beauty", "As a place of spiritual reflection", "For its practicalities, like checking the weather", "As something to be conquered"], correctIndex: 2 },
-            { id: 13, timestamp: 1174, text: "What literary movement did Borges embrace in Spain that believed the metaphor was the essence of poetry?", options: ["Surrealism", "Ultraism", "Romanticism", "Realism"], correctIndex: 1 },
-            { id: 14, timestamp: 1202, text: "Who was the young writer Borges famously collaborated with under the pseudonym Bustos Domecq?", options: ["Gabriel García Márquez", "Julio Cortázar", "Adolfo Bioy Casares", "Victoria Ocampo"], correctIndex: 2 },
-            { id: 15, timestamp: 1503, text: "Where did Borges work to financially support his family after his father's death?", options: ["At a university as a professor", "At a small municipal library", "At a local newspaper", "At a law firm"], correctIndex: 1 },
+            { id: 11, timestamp: 663, text: "What was the title of Borges' first book of poems, inspired by his return to his hometown?", options: ["Ficciones", "The Aleph", "Fervor de Buenos Aires", "Labyrinths"], correctIndex: 2 },
+            { id: 12, timestamp: 980, text: "According to Borges, how does a real peasant or gaucho view the landscape?", options: ["For its aesthetic beauty", "As a place of spiritual reflection", "For its practicalities, like checking the weather", "As something to be conquered"], correctIndex: 2 },
+            { id: 13, timestamp: 1175, text: "What literary movement did Borges embrace in Spain that believed the metaphor was the essence of poetry?", options: ["Surrealism", "Ultraism", "Romanticism", "Realism"], correctIndex: 1 },
+            { id: 14, timestamp: 1205, text: "Who was the young writer Borges famously collaborated with under the pseudonym Bustos Domecq?", options: ["Gabriel García Márquez", "Julio Cortázar", "Adolfo Bioy Casares", "Victoria Ocampo"], correctIndex: 2 },
+            { id: 15, timestamp: 1507, text: "Where did Borges work to financially support his family after his father's death?", options: ["At a university as a professor", "At a small municipal library", "At a local newspaper", "At a law firm"], correctIndex: 1 },
             { id: 16, timestamp: 1561, text: "What near-fatal accident did Borges suffer in 1938?", options: ["He was in a train crash", "He hit his head on an open, freshly painted window", "He fell off a horse", "He was caught in a street fight"], correctIndex: 1 },
             { id: 17, timestamp: 1628, text: "What famous short story did Borges write to test if he had lost his mental abilities after his head injury?", options: ["The South", "The Library of Babel", "Pierre Menard, Author of Don Quixote", "The Circular Ruins"], correctIndex: 2 },
             { id: 18, timestamp: 2136, text: "What prestigious position was Borges appointed to in 1955 after the fall of Perón?", options: ["Minister of Culture", "Director of the National Library", "President of the University", "Ambassador to Spain"], correctIndex: 1 },
             { id: 19, timestamp: 2157, text: "What ironic fate did Borges share with two previous directors of the National Library?", options: ["They were all exiled", "They all went blind", "They all wrote the same book", "They were all from Geneva"], correctIndex: 1 },
-            { id: 20, timestamp: 2657, text: "In which city did Borges choose to spend his final days and die?", options: ["Buenos Aires", "Madrid", "Paris", "Geneva"], correctIndex: 3 }
+            { id: 20, timestamp: 2657, text: "In which city did Borges choose to spend his final days and die?", options: ["Buenos Aires", "Madrid", "Paris", "Geneva"], correctIndex: 3 },
+            // Final pop-up at exactly 45:37 (2737 seconds)
+            { id: 21, timestamp: 2737, text: "Video ended. Get my scores to save", options: ["Save my scores and exit"], correctIndex: 0 }
         ];
 
         // Salt for Local Storage obfuscation
@@ -83,16 +88,22 @@
             const [currentTime, setCurrentTime] = useState(() => getSavedNum('borges_video_curr_time_hash'));
             const [ccEnabled, setCcEnabled] = useState(false);
             const [playbackRate, setPlaybackRate] = useState(1);
+            const [isFullscreen, setIsFullscreen] = useState(false);
             
             const [maxTimeWatched, setMaxTimeWatched] = useState(() => getSavedNum('borges_video_max_time_hash'));
             const maxTimeWatchedRef = useRef(getSavedNum('borges_video_max_time_hash'));
             
-            const [studentName, setStudentName] = useState(() => getSavedStr('borges_video_student_name'));
-            const studentNameRef = useRef(studentName);
+            // Student Information States
+            const [firstName, setFirstName] = useState(() => getSavedStr('borges_video_first_name'));
+            const [lastName, setLastName] = useState(() => getSavedStr('borges_video_last_name'));
+            const [period, setPeriod] = useState(() => getSavedStr('borges_video_period'));
+            const [email, setEmail] = useState(() => getSavedStr('borges_video_email'));
 
-            // Tab violation tracking
-            const [violations, setViolations] = useState(() => getSavedNum('borges_video_violations_hash'));
-            const [showExitWarning, setShowExitWarning] = useState(false);
+            const firstNameRef = useRef(firstName);
+            const lastNameRef = useRef(lastName);
+            const periodRef = useRef(period);
+            const emailRef = useRef(email);
+
             const playbackRateRef = useRef(1);
 
             // Question Tracking Logic
@@ -119,13 +130,28 @@
 
             const playerContainerRef = useRef(null);
             const intervalRef = useRef(null);
+            const videoWrapperRef = useRef(null);
+
+            // Fullscreen Event Listeners
+            useEffect(() => {
+                const handleFullscreenChange = () => {
+                    setIsFullscreen(!!document.fullscreenElement || !!document.webkitFullscreenElement);
+                };
+                
+                document.addEventListener('fullscreenchange', handleFullscreenChange);
+                document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+                return () => {
+                    document.removeEventListener('fullscreenchange', handleFullscreenChange);
+                    document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+                };
+            }, []);
 
             // Keyboard navigation for Skip/Continue
             useEffect(() => {
                 const handleKeyDown = (e) => {
                     if (activeQuestionRef.current && e.key === 'Enter') {
                         e.preventDefault(); 
-                        e.stopPropagation(); // Prevents race condition if clicking and pressing enter simultaneously
+                        e.stopPropagation(); 
                         if (showFeedbackRef.current) {
                             handleContinueVideo();
                         } else {
@@ -149,50 +175,19 @@
                 return () => window.removeEventListener("beforeunload", handleBeforeUnload);
             }, [view]);
 
-            // Mouse Leave (Exit Intent) and Tab Visibility Detection
+            // Tab Visibility Detection (Pauses video but removes penalization)
             useEffect(() => {
-                const handleMouseLeave = (e) => {
-                    if (e.clientY <= 10 && view === 'video' && !isTeacherModeRef.current) {
-                        setShowExitWarning(true);
-                    }
-                };
-
-                const handleMouseEnter = () => {
-                    setShowExitWarning(false);
-                };
-
                 const handleVisibilityChange = () => {
                     if (document.hidden && view === 'video' && !isTeacherModeRef.current) {
                         if (player && typeof player.pauseVideo === 'function') {
                             player.pauseVideo();
-                            
-                            const penaltyTime = 20;
-                            const newTime = Math.max(0, player.getCurrentTime() - penaltyTime);
-                            
-                            localStorage.setItem('borges_video_curr_time_hash', btoa(SALT + newTime.toString()));
-                            
-                            player.seekTo(newTime, true);
-                            setCurrentTime(newTime);
                         }
-                        
-                        setViolations(prev => {
-                            const newCount = prev + 1;
-                            localStorage.setItem('borges_video_violations_hash', btoa(SALT + newCount.toString()));
-                            return newCount;
-                        });
                     }
                 };
 
-                document.addEventListener("mouseleave", handleMouseLeave);
-                document.addEventListener("mouseenter", handleMouseEnter);
                 document.addEventListener("visibilitychange", handleVisibilityChange);
-                
-                return () => {
-                    document.removeEventListener("mouseleave", handleMouseLeave);
-                    document.removeEventListener("mouseenter", handleMouseEnter);
-                    document.removeEventListener("visibilitychange", handleVisibilityChange);
-                };
-            }, [view, player]);
+                return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+            }, [view, player, isFullscreen]);
 
             // Load YouTube Iframe API
             useEffect(() => {
@@ -223,7 +218,7 @@
                         disablekb: 1,      
                         rel: 0,            
                         modestbranding: 1, 
-                        fs: 0,             
+                        fs: 0,             // Disables native youtube fullscreen
                         iv_load_policy: 3, 
                         start: startTime,  
                         cc_load_policy: 1,
@@ -253,6 +248,7 @@
                         
                         if (time >= MAX_ALLOWED_TIME) {
                             player.pauseVideo();
+                            if (document.fullscreenElement) document.exitFullscreen();
                             setView('finished');
                             return;
                         }
@@ -331,6 +327,22 @@
                 setCurrentTime(newTime);
             };
 
+            const toggleFullscreen = () => {
+                if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                    if (videoWrapperRef.current.requestFullscreen) {
+                        videoWrapperRef.current.requestFullscreen();
+                    } else if (videoWrapperRef.current.webkitRequestFullscreen) {
+                        videoWrapperRef.current.webkitRequestFullscreen();
+                    }
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    }
+                }
+            };
+
             const handleTimelineClick = (e) => {
                 if (!player) return;
                 const rect = e.currentTarget.getBoundingClientRect();
@@ -368,6 +380,13 @@
                     return next;
                 });
                 
+                // If it's the final end-of-video pop-up, skip straight to finished view
+                if (questionId === 21) {
+                    if (document.fullscreenElement) document.exitFullscreen();
+                    setView('finished');
+                    return;
+                }
+                
                 resetModalState();
             };
 
@@ -388,6 +407,13 @@
                     return next;
                 });
                 
+                // If it's the final end-of-video pop-up, drop straight into finished view
+                if (questionId === 21) {
+                    if (document.fullscreenElement) document.exitFullscreen();
+                    setView('finished');
+                    return;
+                }
+                
                 resetModalState();
             };
 
@@ -404,14 +430,33 @@
                 }
             };
 
-            const handleNameChange = (e) => {
-                setStudentName(e.target.value);
-                studentNameRef.current = e.target.value;
-                localStorage.setItem('borges_video_student_name', btoa(SALT + e.target.value));
+            // Input Handlers
+            const handleFirstNameChange = (e) => {
+                setFirstName(e.target.value);
+                firstNameRef.current = e.target.value;
+                localStorage.setItem('borges_video_first_name', btoa(SALT + e.target.value));
+            };
+            const handleLastNameChange = (e) => {
+                setLastName(e.target.value);
+                lastNameRef.current = e.target.value;
+                localStorage.setItem('borges_video_last_name', btoa(SALT + e.target.value));
+            };
+            const handlePeriodChange = (e) => {
+                setPeriod(e.target.value);
+                periodRef.current = e.target.value;
+                localStorage.setItem('borges_video_period', btoa(SALT + e.target.value));
+            };
+            const handleEmailChange = (e) => {
+                setEmail(e.target.value);
+                emailRef.current = e.target.value;
+                localStorage.setItem('borges_video_email', btoa(SALT + e.target.value));
             };
 
+            const isFormValid = firstName.trim() && lastName.trim() && period && email.trim();
+
             const calculateScore = () => {
-                return Object.values(studentAnswers).filter(val => val === true).length;
+                // Ensure we don't count the "Video Ended" popup in the 20-question score
+                return Object.entries(studentAnswers).filter(([id, val]) => val === true && id !== '21').length;
             };
 
             const formatTime = (seconds) => {
@@ -430,9 +475,12 @@
                 const rows = [
                     ["Field", "Value"],
                     ["Assignment", "Jorge Luis Borges - The Mirror Man"],
-                    ["Student Name", studentNameRef.current],
+                    ["First Name", firstNameRef.current],
+                    ["Last Name", lastNameRef.current],
+                    ["Period", periodRef.current],
+                    ["Email", emailRef.current],
                     ["Date Completed", new Date().toLocaleString()],
-                    ["Final Score", `${finalScore} / ${QUIZ_QUESTIONS.length}`],
+                    ["Final Score", `${finalScore} / 20`],
                     ["Max Time Watched (seconds)", Math.floor(maxTimeWatchedRef.current)],
                     ["Cheating Alert (Tab Violations)", violations]
                 ];
@@ -442,7 +490,7 @@
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement("a");
                 
-                const safeName = studentNameRef.current.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'student';
+                const safeName = `${firstNameRef.current}_${lastNameRef.current}`.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'student';
                 link.setAttribute("href", url);
                 link.setAttribute("download", `${safeName}_borges_results.csv`);
                 link.style.visibility = 'hidden';
@@ -502,37 +550,70 @@
                             Jorge Luis Borges<br/>
                             <span className="text-xl sm:text-2xl text-blue-400 block mt-2">The Mirror Man</span>
                         </h1>
+                        
                         <div className="space-y-4 sm:space-y-6 text-base sm:text-lg leading-relaxed text-slate-200 font-medium">
                             <p>
-                                Watch the complete documentary. The video will periodically pause to ask you <strong>20 questions</strong>.
-                            </p>
-                            <p>
-                                You can freely skip back and forth in the video. You can also choose to skip a question, but it will count as incorrect. If you rewind the video, you will have the opportunity to answer the question again based on the timestamp.
+                                Watch until the end.
                             </p>
                             <p className="text-red-400 font-bold bg-red-900/20 p-4 rounded-xl border border-red-500/30 text-base">
-                                At the end of the video, your final score window will appear and download a CSV file. You must submit this downloaded file to your teacher!
-                            </p>
-                            <p className="text-sm sm:text-base text-green-400 font-bold bg-green-900/20 p-4 rounded-xl border border-green-500/30">
-                                💾 Your progress is automatically saved. If you accidentally close this tab, you will resume exactly where you left off.
+                                At the end of the video, your final score window will appear, and you will download a CSV file. You must submit this downloaded file to your teacher!
                             </p>
                         </div>
                         
-                        <div className="bg-slate-700/40 p-5 sm:p-6 rounded-xl border border-slate-600 mt-8 sm:mt-10">
-                            <label className="block text-lg sm:text-xl font-bold text-white mb-2">Student Name: <span className="text-red-400">*</span></label>
-                            <input 
-                                type="text" 
-                                value={studentName}
-                                onChange={handleNameChange}
-                                placeholder="Enter your full name to begin..."
-                                className="w-full bg-slate-900 text-white px-4 py-3 rounded-lg border border-slate-500 focus:outline-none focus:border-blue-500 text-base sm:text-lg"
-                            />
+                        <div className="bg-slate-700/40 p-5 sm:p-6 rounded-xl border border-slate-600 mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-bold text-slate-300 mb-1">First Name: <span className="text-red-400">*</span></label>
+                                <input 
+                                    type="text" 
+                                    value={firstName}
+                                    onChange={handleFirstNameChange}
+                                    placeholder="First Name"
+                                    className="w-full bg-slate-900 text-white px-3 py-2 rounded-lg border border-slate-500 focus:outline-none focus:border-blue-500 text-base"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-slate-300 mb-1">Last Name: <span className="text-red-400">*</span></label>
+                                <input 
+                                    type="text" 
+                                    value={lastName}
+                                    onChange={handleLastNameChange}
+                                    placeholder="Last Name"
+                                    className="w-full bg-slate-900 text-white px-3 py-2 rounded-lg border border-slate-500 focus:outline-none focus:border-blue-500 text-base"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-slate-300 mb-1">Period: <span className="text-red-400">*</span></label>
+                                <select 
+                                    value={period}
+                                    onChange={handlePeriodChange}
+                                    className="w-full bg-slate-900 text-white px-3 py-2 rounded-lg border border-slate-500 focus:outline-none focus:border-blue-500 text-base"
+                                >
+                                    <option value="" disabled>Select Period...</option>
+                                    <option value="1">1</option>
+                                    <option value="a2">a2</option>
+                                    <option value="a4">a4</option>
+                                    <option value="b2">b2</option>
+                                    <option value="b4">b4</option>
+                                    <option value="5th">5th</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-slate-300 mb-1">Email: <span className="text-red-400">*</span></label>
+                                <input 
+                                    type="email" 
+                                    value={email}
+                                    onChange={handleEmailChange}
+                                    placeholder="student@email.com"
+                                    className="w-full bg-slate-900 text-white px-3 py-2 rounded-lg border border-slate-500 focus:outline-none focus:border-blue-500 text-base"
+                                />
+                            </div>
                         </div>
 
                         <div className="mt-6 sm:mt-8 flex justify-center pb-2">
                             <button 
                                 onClick={() => setView('video')}
-                                disabled={!studentName.trim()}
-                                className={`px-8 py-4 sm:px-12 sm:py-5 rounded-xl font-black text-xl sm:text-2xl uppercase tracking-wide transition-all transform ${studentName.trim() ? 'bg-green-600 hover:bg-green-500 text-white shadow-[0_0_20px_rgba(22,163,74,0.4)] hover:scale-105' : 'bg-slate-600 text-slate-400 cursor-not-allowed'}`}
+                                disabled={!isFormValid}
+                                className={`px-8 py-4 sm:px-12 sm:py-5 rounded-xl font-black text-xl sm:text-2xl uppercase tracking-wide transition-all transform ${isFormValid ? 'bg-green-600 hover:bg-green-500 text-white shadow-[0_0_20px_rgba(22,163,74,0.4)] hover:scale-105' : 'bg-slate-600 text-slate-400 cursor-not-allowed'}`}
                             >
                                 Go to the Video
                             </button>
@@ -574,7 +655,7 @@
                     <div className="max-w-3xl w-full bg-slate-800 p-10 rounded-2xl shadow-2xl border border-slate-700 text-center">
                         <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-green-400 mb-6"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
                         <h1 className="text-4xl font-black text-white mb-2">Video Completed</h1>
-                        <h2 className="text-xl text-blue-400 font-bold mb-6">{studentName}</h2>
+                        <h2 className="text-xl text-blue-400 font-bold mb-6">{firstName} {lastName}</h2>
                         
                         <div className="bg-slate-900 border border-slate-600 rounded-xl p-8 mb-8 inline-block shadow-inner">
                             <p className="text-slate-400 text-lg uppercase tracking-widest font-bold mb-2">Final Score</p>
@@ -606,66 +687,51 @@
 
             return (
                 <div className="w-full flex flex-col items-center gap-6 animate-fadeIn">
-                    <div className="text-center space-y-2">
-                        <h1 className="text-3xl font-bold text-white">Jorge Luis Borges - The Mirror Man</h1>
-                        {isTeacherMode ? (
-                            <div className="flex flex-col items-center gap-3">
-                                <p className="text-green-400 font-bold bg-green-900/30 px-4 py-1 rounded-full inline-block border border-green-500/50">
-                                    🔓 TEACHER MODE ACTIVE: Tab Anti-Cheat Disabled
-                                </p>
-                                <button 
-                                    onClick={disableTeacherMode}
-                                    className="text-sm font-black text-white hover:bg-red-500 transition-colors bg-red-600 px-6 py-2 rounded-full border border-red-400 shadow-[0_0_15px_rgba(220,38,38,0.6)] uppercase tracking-wide"
-                                >
-                                    ❌ Return to Student Mode
-                                </button>
-                            </div>
-                        ) : (
-                            <p className="text-red-400 font-bold animate-pulse text-lg tracking-wide bg-red-900/40 px-4 py-1 rounded-full border border-red-500/50">
-                                ⚠️ WARNING: Exiting or switching tabs will result in a 20-second penalty!
-                            </p>
-                        )}
-                    </div>
-
-                    <div className="w-full flex flex-col rounded-xl shadow-2xl overflow-hidden border border-slate-700 relative">
-                        <div className="relative w-full aspect-video bg-black">
-                            <div ref={playerContainerRef} className="absolute inset-0 w-full h-full"></div>
-                            <div className="absolute inset-0 z-10 bg-transparent"></div>
-                            
-                            {/* Exit Intent Warning Overlay */}
-                            {showExitWarning && !isTeacherMode && view === 'video' && (
-                                <div className="absolute inset-0 z-[100] bg-red-700/95 backdrop-blur-sm flex flex-col items-center justify-center p-8 text-center border-8 border-red-500">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white mb-6 animate-bounce"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-                                    <h1 className="text-5xl font-black text-white mb-4 uppercase tracking-widest">WARNING!</h1>
-                                    <p className="text-3xl text-white font-bold leading-tight">
-                                        Do not exit or switch tabs!
+                    {!isFullscreen && (
+                        <div className="text-center space-y-2">
+                            <h1 className="text-3xl font-bold text-white">Jorge Luis Borges - The Mirror Man</h1>
+                            {isTeacherMode && (
+                                <div className="flex flex-col items-center gap-3">
+                                    <p className="text-green-400 font-bold bg-green-900/30 px-4 py-1 rounded-full inline-block border border-green-500/50">
+                                        🔓 TEACHER MODE ACTIVE
                                     </p>
-                                    <p className="text-2xl text-red-200 font-bold mt-6 bg-red-950/70 p-4 rounded-xl border border-red-400">
-                                        A 20-SECOND PENALTY will be instantly applied to your progress.
-                                    </p>
-                                    <p className="text-lg text-white mt-10 animate-pulse font-medium bg-black/40 px-6 py-2 rounded-full border border-white/20">
-                                        (Move your mouse back into the window to resume the video)
-                                    </p>
+                                    <button 
+                                        onClick={disableTeacherMode}
+                                        className="text-sm font-black text-white hover:bg-red-500 transition-colors bg-red-600 px-6 py-2 rounded-full border border-red-400 shadow-[0_0_15px_rgba(220,38,38,0.6)] uppercase tracking-wide"
+                                    >
+                                        ❌ Return to Student Mode
+                                    </button>
                                 </div>
                             )}
+                        </div>
+                    )}
+
+                    {/* Wrapper targeted for Fullscreen */}
+                    <div 
+                        ref={videoWrapperRef} 
+                        className={`flex flex-col relative transition-all duration-300 ${isFullscreen ? 'w-screen h-screen bg-black justify-center' : 'w-full rounded-xl shadow-2xl overflow-hidden border border-slate-700'}`}
+                    >
+                        <div className={`relative w-full bg-black ${isFullscreen ? 'flex-grow' : 'aspect-video'}`}>
+                            <div ref={playerContainerRef} className="absolute inset-0 w-full h-full"></div>
+                            <div className="absolute inset-0 z-10 bg-transparent"></div>
                         </div>
 
                         {/* Interactive Question Modal Overlay */}
                         {activeQuestion && (
-                            <div className="absolute inset-0 bg-slate-900/95 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-8 overflow-y-auto">
-                                <div className="max-w-3xl w-full bg-slate-800 rounded-2xl p-8 shadow-2xl border border-slate-600 my-auto">
+                            <div className="absolute inset-0 bg-slate-900/95 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-4 sm:p-8 overflow-y-auto">
+                                <div className="max-w-3xl w-full bg-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl border border-slate-600 my-auto">
                                     <div className="flex justify-between items-center mb-6">
-                                        <h2 className="text-2xl font-bold text-white leading-relaxed">
+                                        <h2 className="text-xl sm:text-2xl font-bold text-white leading-relaxed">
                                             {activeQuestion.text}
                                         </h2>
                                         <span className="bg-blue-600 text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap ml-4">
-                                            Question {activeQuestion.id} of 20
+                                            {activeQuestion.id === 21 ? 'Finished' : `Question ${activeQuestion.id} of 20`}
                                         </span>
                                     </div>
                                     
                                     <div className="space-y-3">
                                         {activeQuestion.options.map((option, idx) => {
-                                            let btnStyles = "w-full text-left p-4 rounded-xl border-2 transition-all duration-200 font-medium ";
+                                            let btnStyles = "w-full text-left p-3 sm:p-4 rounded-xl border-2 transition-all duration-200 font-medium ";
                                             
                                             if (!showFeedback) {
                                                 btnStyles += "border-slate-600 hover:border-blue-400 hover:bg-slate-700 bg-slate-700/50 text-slate-200";
@@ -686,22 +752,24 @@
                                                     className={btnStyles}
                                                     disabled={showFeedback}
                                                 >
-                                                    <span className="inline-block w-8 font-bold opacity-70">
-                                                        {String.fromCharCode(65 + idx)}.
-                                                    </span>
+                                                    {activeQuestion.id !== 21 && (
+                                                        <span className="inline-block w-8 font-bold opacity-70">
+                                                            {String.fromCharCode(65 + idx)}.
+                                                        </span>
+                                                    )}
                                                     {option}
                                                 </button>
                                             );
                                         })}
                                     </div>
 
-                                    <div className="mt-8 flex justify-between items-center animate-fadeIn border-t border-slate-700 pt-6">
+                                    <div className="mt-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 animate-fadeIn border-t border-slate-700 pt-6">
                                         {!showFeedback ? (
                                             <>
-                                                <div className="text-slate-400 font-medium">Press <kbd className="bg-slate-700 px-2 py-1 rounded border border-slate-600 text-white">Enter</kbd> to skip</div>
+                                                <div className="text-slate-400 font-medium text-sm hidden sm:block">Press <kbd className="bg-slate-700 px-2 py-1 rounded border border-slate-600 text-white">Enter</kbd> to skip</div>
                                                 <button 
                                                     onClick={handleSkip}
-                                                    className="text-slate-300 hover:text-white px-6 py-3 rounded-lg font-bold transition-colors border border-slate-600 hover:bg-slate-700"
+                                                    className="w-full sm:w-auto text-slate-300 hover:text-white px-6 py-3 rounded-lg font-bold transition-colors border border-slate-600 hover:bg-slate-700"
                                                 >
                                                     Skip Question
                                                 </button>
@@ -711,13 +779,13 @@
                                                 <div className={`text-xl font-bold ${selectedOption === activeQuestion.correctIndex ? 'text-green-400' : 'text-red-400'}`}>
                                                     {selectedOption === activeQuestion.correctIndex ? '✓ Correct!' : '✗ Incorrect.'}
                                                 </div>
-                                                <div className="flex items-center gap-4">
-                                                    <span className="text-slate-400 font-medium">Press <kbd className="bg-slate-700 px-2 py-1 rounded border border-slate-600 text-white">Enter</kbd> to continue</span>
+                                                <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+                                                    <span className="text-slate-400 font-medium text-sm hidden sm:block">Press <kbd className="bg-slate-700 px-2 py-1 rounded border border-slate-600 text-white">Enter</kbd> to continue</span>
                                                     <button 
                                                         onClick={handleContinueVideo}
-                                                        className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-3 rounded-lg font-bold shadow-lg transition-colors text-lg"
+                                                        className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white px-10 py-3 rounded-lg font-bold shadow-lg transition-colors text-lg"
                                                     >
-                                                        Continue Video
+                                                        Continue
                                                     </button>
                                                 </div>
                                             </>
@@ -728,7 +796,7 @@
                         )}
 
                         {/* Custom Control Bar */}
-                        <div className="w-full bg-slate-800 p-5 flex flex-col gap-3 z-40">
+                        <div className={`w-full bg-slate-800 p-4 sm:p-5 flex flex-col gap-3 z-40 ${isFullscreen ? 'pb-8' : ''}`}>
                             {/* Timeline strictly mapped to the assigned duration */}
                             <div 
                                 className="relative w-full h-3 bg-slate-700 rounded-full group cursor-pointer"
@@ -748,6 +816,8 @@
 
                                 {/* Question Markers on Timeline */}
                                 {MAX_ALLOWED_TIME > 0 && QUIZ_QUESTIONS.map(q => {
+                                    if (q.id === 21) return null; // Hide the marker for the final end screen pop-up
+                                    
                                     const markerStyle = { left: `calc(${(q.timestamp / MAX_ALLOWED_TIME) * 100}% - 2px)` };
                                     
                                     // Color logic based on answered state
@@ -767,11 +837,11 @@
                             </div>
 
                             {/* Controls row */}
-                            <div className="flex items-center gap-5 mt-2">
+                            <div className="flex items-center gap-3 sm:gap-5 mt-2">
                                 <button 
                                     onClick={togglePlayPause}
                                     className="text-white hover:text-blue-400 transition-colors focus:outline-none z-20"
-                                    disabled={!!activeQuestion || showExitWarning}
+                                    disabled={!!activeQuestion}
                                     title={isPlaying ? "Pause" : "Play"}
                                 >
                                     {isPlaying ? (
@@ -784,11 +854,11 @@
                                 <button 
                                     onClick={handleRewind}
                                     className="text-white hover:text-blue-400 transition-colors focus:outline-none flex items-center gap-1 z-20"
-                                    disabled={!!activeQuestion || showExitWarning}
+                                    disabled={!!activeQuestion}
                                     title="Rewind 10 Seconds"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                                    <span className="text-sm font-bold -ml-0.5">10s</span>
+                                    <span className="text-sm font-bold -ml-0.5 hidden sm:inline">10s</span>
                                 </button>
                                 
                                 <button 
@@ -807,7 +877,7 @@
                                             className="bg-red-600 hover:bg-red-500 text-white px-4 py-1.5 rounded-lg font-bold shadow-[0_0_10px_rgba(220,38,38,0.6)] transition-colors flex items-center gap-2 border border-red-400 animate-pulse whitespace-nowrap z-20"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                                            EXIT TEACHER MODE
+                                            EXIT TEACHER
                                         </button>
                                     )}
 
@@ -824,7 +894,7 @@
                                     
                                     <button 
                                         onClick={toggleSpeed}
-                                        disabled={!!activeQuestion || showExitWarning}
+                                        disabled={!!activeQuestion}
                                         className={`z-20 px-4 py-1.5 rounded-lg border-2 font-bold transition-all focus:outline-none disabled:opacity-50 ${playbackRate === 1.25 ? 'bg-amber-500/20 border-amber-400 text-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.3)]' : 'border-slate-500 text-white hover:border-white shadow-[0_0_10px_rgba(255,255,255,0.2)]'}`}
                                         title="Toggle Speed"
                                     >
@@ -832,7 +902,20 @@
                                     </button>
                                 </div>
 
-                                <div className="text-base font-medium text-slate-300 font-mono ml-auto flex items-center gap-4">
+                                {/* Fullscreen Button */}
+                                <button 
+                                    onClick={toggleFullscreen}
+                                    className="text-slate-400 hover:text-white transition-colors focus:outline-none z-20 sm:ml-4 ml-auto"
+                                    title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+                                >
+                                    {isFullscreen ? (
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
+                                    ) : (
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                                    )}
+                                </button>
+
+                                <div className="text-base font-medium text-slate-300 font-mono hidden sm:flex items-center gap-4 ml-auto">
                                     <div className="flex gap-3 text-sm">
                                         <span className="text-white font-bold tracking-wide">Score: <span className="text-green-400">{calculateScore()}</span> / 20</span>
                                     </div>

@@ -224,6 +224,7 @@
                 const startTime = Math.floor(getSavedNum('borges_video_curr_time_hash'));
                 const newPlayer = new window.YT.Player(playerContainerRef.current, {
                     videoId: VIDEO_ID,
+                    host: 'https://www.youtube-nocookie.com', // Bypasses many school district cookie/tracking restrictions
                     playerVars: {
                         controls: 0,       
                         disablekb: 1,      
@@ -233,7 +234,8 @@
                         iv_load_policy: 3, 
                         start: startTime,  
                         cc_load_policy: 1,
-                        playsinline: 1     
+                        playsinline: 1,
+                        origin: window.location.origin // Helps with school firewall domain whitelisting
                     },
                     events: {
                         onReady: (event) => {
@@ -832,7 +834,11 @@
                         {/* Interactive Question Modal Overlay */}
                         {activeQuestion && (
                             <div className="absolute inset-0 bg-slate-900/95 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-4 sm:p-8 overflow-y-auto">
-                                <div className="max-w-3xl w-full bg-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl border border-slate-600 my-auto">
+                                <div 
+                                    className="max-w-3xl w-full bg-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl border border-slate-600 my-auto select-none"
+                                    onCopy={(e) => e.preventDefault()}
+                                    onContextMenu={(e) => e.preventDefault()}
+                                >
                                     <div className="flex justify-between items-center mb-6">
                                         <h2 className="text-xl sm:text-2xl font-bold text-white leading-relaxed">
                                             {activeQuestion.text}

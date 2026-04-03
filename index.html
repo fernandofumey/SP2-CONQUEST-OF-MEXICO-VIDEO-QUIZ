@@ -110,7 +110,10 @@
             const studentPeriodRef = useRef(studentPeriod);
             const studentEmailRef = useRef(studentEmail);
 
+            // Tab violation tracking
             const [violations, setViolations] = useState(() => getSavedNum('borges_video_violations_hash'));
+            const violationsRef = useRef(violations);
+
             const [showExitWarning, setShowExitWarning] = useState(false);
             const [dismissedFinalOverlay, setDismissedFinalOverlay] = useState(false);
             const playbackRateRef = useRef(1);
@@ -129,6 +132,8 @@
             // Modal Interactions
             const [selectedOption, setSelectedOption] = useState(null);
             const [showFeedback, setShowFeedback] = useState(false);
+            const [showResetConfirm, setShowResetConfirm] = useState(false);
+
             const selectedOptionRef = useRef(null);
             const showFeedbackRef = useRef(false);
 
@@ -186,13 +191,19 @@
                 return () => window.removeEventListener("beforeunload", handleBeforeUnload);
             }, [view]);
 
-            // Tab Visibility Detection (Pauses video without penalizing)
+            // Tab Visibility Detection (Pauses video without penalizing, but adds violation)
             useEffect(() => {
                 const handleVisibilityChange = () => {
                     if (document.hidden && view === 'video' && !isTeacherModeRef.current) {
                         if (player && typeof player.pauseVideo === 'function') {
                             player.pauseVideo();
                         }
+                        setViolations(prev => {
+                            const newCount = prev + 1;
+                            violationsRef.current = newCount;
+                            localStorage.setItem('borges_video_violations_hash', encodeBase64(SALT + newCount.toString()));
+                            return newCount;
+                        });
                     }
                 };
 
@@ -224,18 +235,18 @@
                 const startTime = Math.floor(getSavedNum('borges_video_curr_time_hash'));
                 const newPlayer = new window.YT.Player(playerContainerRef.current, {
                     videoId: VIDEO_ID,
-                    host: 'https://www.youtube-nocookie.com', // Bypasses many school district cookie/tracking restrictions
+                    host: 'https://www.youtube-nocookie.com', 
                     playerVars: {
                         controls: 0,       
                         disablekb: 1,      
                         rel: 0,            
                         modestbranding: 1, 
-                        fs: 0,             // Disables native youtube fullscreen
+                        fs: 0,             
                         iv_load_policy: 3, 
                         start: startTime,  
                         cc_load_policy: 1,
                         playsinline: 1,
-                        origin: window.location.origin // Helps with school firewall domain whitelisting
+                        origin: window.location.origin 
                     },
                     events: {
                         onReady: (event) => {
@@ -264,8 +275,7 @@
                                 if (document.exitFullscreen) document.exitFullscreen();
                                 else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
                             }
-                            downloadCSV(); 
-                            setView('finished');
+                            handleFinalSubmit(); 
                             return;
                         }
 
@@ -279,11 +289,9 @@
                         // Ironclad Anti-Fast-Forward System
                         if (Date.now() - lastSeekTimeRef.current >= 1500) {
                             let currentMax = maxTimeWatchedRef.current;
-                            // 2.5s tolerance catches 5s YouTube native keyboard skips AND high-speed extensions.
                             const JUMP_TOLERANCE = 2.5; 
 
                             if (!isTeacherModeRef.current && time > prev + JUMP_TOLERANCE) { 
-                                // They attempted an unnatural jump. Snap them back!
                                 player.seekTo(prev, true);
                                 lastSeekTimeRef.current = Date.now();
                                 return; 
@@ -296,15 +304,17 @@
                             }
                         }
 
-                        // Always update visual time
                         if (time > 0 || maxTimeWatchedRef.current === 0) {
                             setCurrentTime(time);
                             localStorage.setItem('borges_video_curr_time_hash', encodeBase64(SALT + time.toString())); 
                         }
 
-                        // === Guaranteed Question Triggering ===
+                        // === Guaranteed Question Triggering (Once per question) ===
                         if (!activeQuestionRef.current) {
                             const upcoming = QUIZ_QUESTIONS.find(q => {
+                                // IMPORTANT: If already answered/skipped, DO NOT trigger it again. 
+                                if (studentAnswersRef.current[q.id] !== undefined) return false;
+
                                 const inWindow = time >= q.timestamp && time < q.timestamp + 2;
                                 const passedByLag = prev <= q.timestamp && time > q.timestamp && (time - prev) < 5;
                                 return inWindow || passedByLag;
@@ -363,8 +373,6 @@
                 if (!player) return;
                 const newTime = Math.max(0, player.getCurrentTime() - 10);
                 
-                // If they click rewind, forcibly overwrite and lower their Max Watched time. 
-                // They are now trapped and must re-earn that progress at normal speed.
                 if (!isTeacherModeRef.current) {
                     maxTimeWatchedRef.current = newTime;
                     setMaxTimeWatched(newTime);
@@ -401,12 +409,10 @@
                 let targetTime = clickRatio * MAX_ALLOWED_TIME;
                 const currentVidTime = player.getCurrentTime();
 
-                // Block forward clicks. If clicking backward, aggressively lock their progress.
                 if (!isTeacherModeRef.current) {
                     if (targetTime > currentVidTime) {
-                        targetTime = currentVidTime; // Clamp to current time (Blocks fast forward)
+                        targetTime = currentVidTime; 
                     }
-                    // Overwrite maximum watched time to lock them in
                     maxTimeWatchedRef.current = targetTime;
                     setMaxTimeWatched(targetTime);
                     localStorage.setItem('borges_video_max_time_hash', encodeBase64(SALT + targetTime.toString()));
@@ -510,6 +516,33 @@
                 }
             };
 
+            // Reset Everything Function
+            const executeFullReset = () => {
+                localStorage.removeItem('borges_video_curr_time_hash');
+                localStorage.removeItem('borges_video_max_time_hash');
+                localStorage.removeItem('borges_video_answers_hash');
+                localStorage.removeItem('borges_video_violations_hash');
+                
+                setCurrentTime(0);
+                setMaxTimeWatched(0);
+                maxTimeWatchedRef.current = 0;
+                setStudentAnswers({});
+                studentAnswersRef.current = {};
+                setViolations(0);
+                violationsRef.current = 0;
+                setDismissedFinalOverlay(false);
+                
+                setShowResetConfirm(false);
+                
+                if (player && typeof player.seekTo === 'function') {
+                    player.seekTo(0, true);
+                    player.playVideo();
+                }
+                lastSeekTimeRef.current = Date.now();
+                prevTimeRef.current = 0;
+                lastTriggeredQuestionIdRef.current = null;
+            };
+
             // Input Handlers
             const handleFirstNameChange = (e) => {
                 setFirstName(e.target.value);
@@ -548,39 +581,103 @@
             const maxWatchedStyle = { width: `${(maxTimeWatched / MAX_ALLOWED_TIME) * 100 || 0}%` };
             const currentTimeStyle = { width: `${(currentTime / MAX_ALLOWED_TIME) * 100 || 0}%` };
 
-            const downloadCSV = () => {
+            const downloadJPG = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 1000;
+                canvas.height = 700;
+                const ctx = canvas.getContext('2d');
+
+                // Advanced Anti-Counterfeit Background
+                const gradient = ctx.createLinearGradient(0, 0, 1000, 700);
+                gradient.addColorStop(0, '#0f172a'); // Deep Slate
+                gradient.addColorStop(0.5, '#3b0764'); // Deep Purple
+                gradient.addColorStop(1, '#172554'); // Deep Blue
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 1000, 700);
+
+                // Cryptographic Background Watermark Pattern
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+                ctx.font = '22px monospace';
+                for (let i = 0; i < 40; i++) {
+                    ctx.fillText('VERIFIED SECURE STUDENT SCORE RECORD  VERIFIED SECURE STUDENT SCORE RECORD', -50 + (i % 2) * 40, i * 30);
+                }
+
+                // Geometric Anti-Forgery Shapes
+                for (let i = 0; i < 20; i++) {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.05})`;
+                    ctx.beginPath();
+                    ctx.arc(Math.random() * 1000, Math.random() * 700, Math.random() * 150, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Center Certificate Container
+                ctx.fillStyle = 'rgba(30, 41, 59, 0.9)';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+                ctx.shadowBlur = 30;
+                ctx.fillRect(80, 80, 840, 540);
+                ctx.shadowBlur = 0;
+
+                ctx.strokeStyle = 'rgba(99, 102, 241, 0.5)';
+                ctx.lineWidth = 4;
+                ctx.strokeRect(80, 80, 840, 540);
+
+                // Text Settings
+                ctx.textAlign = 'center';
+                
+                ctx.fillStyle = '#f8fafc';
+                ctx.font = 'bold 36px Arial';
+                ctx.fillText('Jorge Luis Borges - The Mirror Man', 500, 150);
+
+                ctx.fillStyle = '#818cf8';
+                ctx.font = '22px Arial';
+                ctx.fillText('OFFICIAL COMPLETION CERTIFICATE', 500, 190);
+
+                // Student Identity
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 48px Arial';
+                ctx.fillText(`${firstNameRef.current} ${lastNameRef.current}`, 500, 280);
+
+                ctx.fillStyle = '#cbd5e1';
+                ctx.font = '24px Arial';
+                ctx.fillText(`Period: ${studentPeriodRef.current} | Email: ${studentEmailRef.current}`, 500, 325);
+
+                // Final Score
                 const finalScore = calculateScore();
-                
-                const rows = [
-                    ["Field", "Value"],
-                    ["Assignment", "Jorge Luis Borges - The Mirror Man"],
-                    ["First Name", firstNameRef.current],
-                    ["Last Name", lastNameRef.current],
-                    ["Period", studentPeriodRef.current],
-                    ["Email", studentEmailRef.current],
-                    ["Date Completed", new Date().toLocaleString()],
-                    ["Final Score", `${finalScore} / ${QUIZ_QUESTIONS.length}`],
-                    ["Max Time Watched (seconds)", Math.floor(maxTimeWatchedRef.current)],
-                    ["Cheating Alert (Tab Violations)", violations]
-                ];
-                
-                const csvContent = rows.map(r => r.join(",")).join("\n");
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement("a");
-                
+                ctx.font = 'bold 80px Arial';
+                ctx.fillStyle = finalScore >= 14 ? '#4ade80' : (finalScore >= 10 ? '#fbbf24' : '#ef4444');
+                ctx.fillText(`Score: ${finalScore} / 20`, 500, 430);
+
+                // Timestamp
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '22px Arial';
+                const now = new Date();
+                ctx.fillText(`Date: ${now.toLocaleDateString()}  |  Time: ${now.toLocaleTimeString()}`, 500, 490);
+
+                // Cheating Alerts
+                const currentViolations = violationsRef.current;
+                ctx.fillStyle = currentViolations > 0 ? '#f87171' : '#4ade80';
+                ctx.font = 'bold 20px Arial';
+                ctx.fillText(`Cheating Alerts (Tab Violations): ${currentViolations}`, 500, 530);
+
+                // Security Hash ID (to prevent photoshop forgery of names)
+                ctx.fillStyle = '#475569';
+                ctx.font = '16px monospace';
+                const hashStr = btoa(`${firstNameRef.current}_${lastNameRef.current}_${finalScore}_${now.getTime()}`).substring(0, 35);
+                ctx.fillText(`AUTH-ID: ${hashStr}-${currentViolations}`, 500, 580);
+
+                // Download the Image
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+                const link = document.createElement('a');
                 const safeName = `${firstNameRef.current}_${lastNameRef.current}`.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'student';
-                link.setAttribute("href", url);
-                link.setAttribute("download", `${safeName}_borges_results.csv`);
-                link.style.visibility = 'hidden';
-                
+                link.download = `${safeName}_borges_score.jpg`;
+                link.href = dataUrl;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
             };
 
             const handleFinalSubmit = () => {
-                downloadCSV();
+                downloadJPG();
                 if (document.fullscreenElement || document.webkitFullscreenElement) {
                     if (document.exitFullscreen) {
                         document.exitFullscreen();
@@ -641,7 +738,7 @@
                                 Watch until the end.
                             </p>
                             <p className="text-red-400 font-bold bg-red-900/20 p-3 sm:p-4 rounded-xl border border-red-500/30 text-sm sm:text-base">
-                                At the end of the video, your final score window will appear, and you will download a CSV file. You must submit this downloaded file to your teacher!
+                                At the end of the video, your final score window will appear, and you will download a JPG certificate. You must submit this downloaded file to your teacher!
                             </p>
                         </div>
                         
@@ -754,18 +851,18 @@
                         </div>
                         
                         <div className="bg-slate-700/50 rounded-xl p-6 mb-8 border border-slate-600">
-                            <h3 className="text-xl font-bold text-blue-400 mb-2">📥 Results Downloaded Automatically</h3>
-                            <p className="text-slate-300 mb-4">Your results CSV file has been downloaded. If your browser blocked it, please click the button below to download it manually.</p>
+                            <h3 className="text-xl font-bold text-blue-400 mb-2">📥 Certificate Downloaded</h3>
+                            <p className="text-slate-300 mb-4">Your colorful JPG certificate has been generated and downloaded. If your browser blocked it, please click the button below to download it manually.</p>
                             <button 
-                                onClick={downloadCSV}
+                                onClick={downloadJPG}
                                 className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-bold transition-colors shadow-lg"
                             >
-                                Download Results Again
+                                Download Certificate Again
                             </button>
                         </div>
 
                         <p className="mt-8 text-xl text-amber-400 font-bold">
-                            Please ensure your results file has downloaded and submit it to your teacher!
+                            Please ensure your image file has downloaded and submit it to your teacher!
                         </p>
                     </div>
                 );
@@ -774,7 +871,7 @@
             return (
                 <div className="w-full flex flex-col items-center gap-6 animate-fadeIn">
                     {!isFullscreen && (
-                        <div className="text-center space-y-2">
+                        <div className="text-center space-y-2 w-full max-w-5xl">
                             <h1 className="text-3xl font-bold text-white">Jorge Luis Borges - The Mirror Man</h1>
                             {isTeacherMode && (
                                 <div className="flex flex-col items-center gap-3">
@@ -997,27 +1094,6 @@
 
                                 {/* Playback Speed Button & Teacher Override */}
                                 <div className="ml-2 flex items-center gap-3 hidden md:flex">
-                                    {isTeacherMode && (
-                                        <button 
-                                            onClick={disableTeacherMode}
-                                            className="bg-red-600 hover:bg-red-500 text-white px-4 py-1.5 rounded-lg font-bold shadow-[0_0_10px_rgba(220,38,38,0.6)] transition-colors flex items-center gap-2 border border-red-400 animate-pulse whitespace-nowrap z-20"
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                                            EXIT TEACHER
-                                        </button>
-                                    )}
-
-                                    {!isTeacherMode && (
-                                        <>
-                                            <span className="text-2xl">😊</span>
-                                            <span className="text-sm font-bold text-amber-400 uppercase tracking-wide">ok, you can speed up to 1.25x</span>
-                                            
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-red-500 animate-pulse drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]">
-                                                <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
-                                            </svg>
-                                        </>
-                                    )}
-                                    
                                     <button 
                                         onClick={toggleSpeed}
                                         disabled={!!activeQuestion}
@@ -1061,6 +1137,46 @@
                             </div>
                         </div>
                     </div>
+
+                    {/* RESTART FROM SCRATCH BUTTON */}
+                    {!isFullscreen && (
+                        <div className="w-full flex justify-center mt-2 max-w-5xl z-10">
+                            <button 
+                                onClick={() => setShowResetConfirm(true)}
+                                className="text-slate-400 hover:text-red-400 text-sm font-bold flex items-center gap-2 transition-colors bg-slate-800/50 px-5 py-2.5 rounded-full border border-slate-700 hover:border-red-500/50"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                                Restart Assignment From Scratch
+                            </button>
+                        </div>
+                    )}
+
+                    {/* CONFIRM RESTART MODAL */}
+                    {showResetConfirm && (
+                        <div className="absolute inset-0 bg-slate-900/95 backdrop-blur-sm z-[70] flex flex-col items-center justify-center p-4">
+                            <div className="bg-slate-800 p-8 rounded-2xl border-2 border-red-500 shadow-[0_0_40px_rgba(239,68,68,0.4)] text-center max-w-lg w-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-red-500 mb-4 animate-pulse"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                <h2 className="text-3xl font-black text-white mb-4 uppercase">Start From Scratch?</h2>
+                                <p className="text-lg text-slate-300 mb-8 font-medium leading-relaxed">
+                                    This will <strong className="text-red-400">permanently delete</strong> your entire progress, your answers, and the time you have watched so far. You will lose everything and start from the beginning.
+                                </p>
+                                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                    <button 
+                                        onClick={() => setShowResetConfirm(false)}
+                                        className="px-6 py-3 rounded-lg font-bold text-white bg-slate-600 hover:bg-slate-500 transition-colors w-full sm:w-auto"
+                                    >
+                                        Cancel, keep watching
+                                    </button>
+                                    <button 
+                                        onClick={executeFullReset}
+                                        className="px-6 py-3 rounded-lg font-bold text-white bg-red-600 hover:bg-red-500 transition-colors w-full sm:w-auto border border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.5)]"
+                                    >
+                                        Yes, I want to restart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             );
         };
